@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # BunnyTailor — Sổ ghi chú cho thợ may cosplay
 
 App ghi chú cá nhân để theo dõi **đơn hàng may cosplay** + **lịch hẹn deadline** + **ô ghi chú** (mỗi ô chèn ảnh + ghi chú, ghim theo ngày). Pure Node.js, **không dependency** — chỉ cần Node 18+.
@@ -86,3 +87,7 @@ Trường `date` và `deadline` theo định dạng `YYYY-MM-DD`. `color` thuộ
 Đơn hàng (order) có các trường: `title`, `character`, `series`, `client`, `deadline`, `status`, `price` (số nguyên VNĐ), `measurements` (object 15 chỉ số: `cao,nang,vai,co,nguc,eo,dai_ao,vong_nach,bap_tay,co_tay,dai_tay,mong,dui,bap_chan,dai_quan` — mỗi giá trị chuỗi, tuỳ chọn), `fabricType` (chuỗi), `fabricMeters` (chuỗi), `materials` (mảng `{name,qty,unit,cost}`), `images` (mảng `{id,url,name,createdAt}` — quản lý qua endpoint `/api/orders/:id/images`, tối đa 12 ảnh), `facebook` (chuỗi URL, tuỳ chọn), `note`.
 
 
+=======
+# BunnyTailorNote
+A website for managing orders
+>>>>>>> 60756a4369156c4bbb6f24d216b35021b820d35b
