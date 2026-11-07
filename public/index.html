@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BunnyTailor — Sổ ghi chú may cosplay của Trâm Hòn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="corner-bunny tl" id="cb1"></div>
+  <div class="corner-bunny br" id="cb2"></div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="brand" id="brandHome">
+        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <ellipse cx="17" cy="12" rx="4" ry="10" fill="#B47C86"/>
+          <ellipse cx="31" cy="12" rx="4" ry="10" fill="#B47C86"/>
+          <ellipse cx="17" cy="13" rx="2" ry="6" fill="#F6E7E9"/>
+          <ellipse cx="31" cy="13" rx="2" ry="6" fill="#F6E7E9"/>
+          <circle cx="24" cy="28" r="13" fill="#FBF7F1" stroke="#B47C86" stroke-width="2"/>
+          <circle cx="19" cy="27" r="1.6" fill="#2A2622"/>
+          <circle cx="29" cy="27" r="1.6" fill="#2A2622"/>
+          <ellipse cx="24" cy="31" rx="1.9" ry="1.3" fill="#B47C86"/>
+        </svg>
+        <span class="name"><b>Bunny<span class="accent">Tailor</span></b><small>Sổ ghi chú may cosplay của Trâm Hòn</small></span>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link active" data-tab="orders">✂ Đơn hàng</button>
+        <button class="nav-link" data-tab="calendar">📅 Lịch</button>
+        <button class="nav-link" data-tab="charts">📊 Biểu đồ</button>
+      </div>
+      <div class="nav-right">
+        <button class="btn btn-ghost btn-sm seed-btn" id="seedBtn" title="Nạp dữ liệu mẫu để xem qua">Dữ liệu mẫu</button>
+        <button class="btn btn-ghost btn-sm reset-btn" id="resetBtn" title="Xoá toàn bộ đơn hàng, ô ghi chú và ảnh">Xoá tất cả</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ====================== ORDERS TAB ====================== -->
+    <section id="page-orders" class="page">
+      <div class="wrap">
+        <div class="page-head">
+          <span class="eyebrow">Quản lý đơn may</span>
+          <h1>Đơn hàng của tôi</h1>
+          <p>Theo dõi từng đơn cosplay: nhân vật, khách hàng, trạng thái và deadline. Mọi deadline tự động lên lịch ở tab Lịch.</p>
+        </div>
+        <div class="stats-row" id="statsRow"></div>
+        <div class="orders-toolbar">
+          <div class="toggle-group" id="filterGroup">
+            <button class="active" data-filter="all">Tất cả</button>
+            <button data-filter="pending">Chờ vật liệu</button>
+            <button data-filter="sewing">Đang may</button>
+            <button data-filter="done">Hoàn thành</button>
+          </div>
+          <button class="btn btn-primary" id="addOrderBtn">＋ Thêm đơn hàng</button>
+        </div>
+        <div class="order-list" id="orderList"></div>
+      </div>
+    </section>
+
+    <!-- ====================== CALENDAR TAB ====================== -->
+    <section id="page-calendar" class="page hidden">
+      <div class="wrap">
+        <div class="page-head">
+          <span class="eyebrow">Lịch tháng</span>
+          <h1>Lịch đơn hàng &amp; ghi chú</h1>
+          <p>Deadline đơn may hiện ngay trên lịch. Bấm vào một ngày để mở ô ghi chú — mỗi ô chèn được nhiều ảnh và ghi chú riêng.</p>
+        </div>
+        <div class="cal-toolbar">
+          <div class="cal-nav">
+            <button class="ico-btn" id="calPrev" aria-label="Tháng trước">‹</button>
+            <div class="cal-title" id="calTitle"></div>
+            <button class="ico-btn" id="calNext" aria-label="Tháng sau">›</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="calToday">Hôm nay</button>
+          <div class="cal-legend">
+            <span class="lg"><span class="sw deadline"></span>Deadline đơn</span>
+            <span class="lg"><span class="sw note"></span>Ô ghi chú</span>
+          </div>
+        </div>
+        <div class="cal-weekdays" id="calWeekdays"></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </section>
+
+    <!-- ====================== CHARTS TAB ====================== -->
+    <section id="page-charts" class="page hidden">
+      <div class="wrap">
+        <div class="page-head">
+          <span class="eyebrow">Tổng quan &amp; doanh thu</span>
+          <h1>Biểu đồ đơn hàng</h1>
+          <p>Tổng tiền đã kiếm được từ toàn bộ đơn hàng, phân bổ theo trạng thái và theo tháng deadline. Cập nhật tự động mỗi khi thêm/sửa đơn.</p>
+        </div>
+        <div id="chartsBody"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- modal + lightbox + toast -->
+  <div class="modal-overlay" id="modalRoot"><div class="modal" id="modalBox"></div></div>
+  <div class="lightbox" id="lightbox"><span class="lb-close">×</span><img alt="" /></div>
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+  "use strict";
+  /* ============================================================
+     BunnyTailor — frontend logic (vanilla JS, inline)
+     2 tab: Đơn hàng (orders CRUD) · Lịch (monthly calendar + note boxes)
+     ============================================================ */
+  const THANG = ["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6","Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"];
+  const STATUS_LABEL = { pending: "Chờ vật liệu", sewing: "Đang may", done: "Hoàn thành" };
+  const NOTE_COLORS = ["rose","gold","sage","cream","lilac"];
+
+  const S = { orders: [], notes: [], tab: "orders", filter: "all", cursor: monthStart(new Date()) };
+  let currentDay = null;
+  let orderDraft = null;            // bản nháp của đơn đang mở trong modal (không đụng S.orders)
+  let pendingOrderImages = [];      // [{file, url}] ảnh costume mới chọn, chưa upload
+  let pendingConfirm = null;
+  const saveTimers = {};
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+  const escAttr = esc;
+  function isoDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), da=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${da}`; }
+  function monthStart(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function fmtDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-").map(Number); return `${d}/${m}/${y}`; }
+  function fmtDateLong(iso){ const [y,m,d]=iso.split("-").map(Number); return `${THANG[m-1]}, ngày ${d}, ${y}`; }
+  function daysLeft(deadline){ if(!deadline) return null; const t=new Date(); t.setHours(0,0,0,0); const d=new Date(deadline+"T00:00:00"); return Math.round((d-t)/86400000); }
+
+  async function api(path, opts={}){
+    const res = await fetch(path, opts);
+    const txt = await res.text();
+    let data = null; try { data = txt ? JSON.parse(txt) : null; } catch(_) {}
+    if(!res.ok) throw new Error((data && data.error) || ("HTTP "+res.status));
+    return data;
+  }
+  function apiJSON(path, method, body){ return api(path, { method, headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) }); }
+
+  function toast(type, title, msg){
+    const w = document.getElementById("toastWrap");
+    const t = document.createElement("div"); t.className = "toast "+type;
+    t.innerHTML = `<div class="msg"><b>${esc(title)}</b>${esc(msg||"")}</div>`;
+    w.appendChild(t);
+    setTimeout(()=>{ t.classList.add("leaving"); setTimeout(()=>t.remove(), 300); }, 2600);
+  }
+
+  /* ---------- modal / lightbox ---------- */
+  function openModal(html, wide){
+    const box = document.getElementById("modalBox");
+    box.className = "modal" + (wide ? " wide" : "");
+    box.innerHTML = html;
+    document.getElementById("modalRoot").classList.add("show");
+  }
+  function closeModal(){ document.getElementById("modalRoot").classList.remove("show"); document.getElementById("modalBox").innerHTML = ""; pendingConfirm = null; orderDraft = null; clearPendingOrderImages(); }
+  function openLightbox(src){ const lb=document.getElementById("lightbox"); lb.querySelector("img").src=src; lb.classList.add("show"); }
+  function closeLightbox(){ document.getElementById("lightbox").classList.remove("show"); }
+  function confirmModal(title, msg, onYes){
+    pendingConfirm = onYes;
+    openModal(`<div class="modal-head"><div><h3>${esc(title)}</h3></div><button class="close" data-act="close">×</button></div>
+      <div class="modal-body"><p style="color:var(--ink-soft)">${esc(msg)}</p></div>
+      <div class="modal-foot"><button class="btn btn-ghost" data-act="close">Huỷ</button><button class="btn btn-dark" data-act="confirm">Xoá</button></div>`);
+  }
+
+  /* ---------- data load ---------- */
+  async function loadAll(){
+    [S.orders, S.notes] = await Promise.all([api("/api/orders"), api("/api/notes")]);
+    renderStats(); renderOrders(); renderCalendar(); renderCharts();
+  }
+
+  /* ---------- tab switching ---------- */
+  function setTab(t){
+    S.tab = t;
+    document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active", b.dataset.tab===t));
+    document.getElementById("page-orders").classList.toggle("hidden", t!=="orders");
+    document.getElementById("page-calendar").classList.toggle("hidden", t!=="calendar");
+    document.getElementById("page-charts").classList.toggle("hidden", t!=="charts");
+    if(t==="calendar") renderCalendar();
+    if(t==="charts") renderCharts();
+  }
+
+  /* ---------- stats ---------- */
+  function renderStats(){
+    const o = S.orders;
+    const counts = {
+      total: o.length,
+      pending: o.filter(x=>x.status==="pending").length,
+      sewing: o.filter(x=>x.status==="sewing").length,
+      done: o.filter(x=>x.status==="done").length,
+    };
+    const doneRev = o.filter(x=>x.status==="done").reduce((s,x)=>s+(Math.floor(Number(x.price)||0)),0);
+    document.getElementById("statsRow").innerHTML =
+      `<div class="stat-card total"><span class="num">${counts.total}</span><span class="label">Tổng đơn</span></div>
+       <div class="stat-card pending"><span class="num">${counts.pending}</span><span class="label">Chờ vật liệu</span></div>
+       <div class="stat-card sewing"><span class="num">${counts.sewing}</span><span class="label">Đang may</span></div>
+       <div class="stat-card done"><span class="num">${counts.done}</span><span class="label">Hoàn thành</span></div>
+       <div class="stat-card money"><span class="num">${fmtVND(doneRev)}</span><span class="label">💰 Đã thu (hoàn thành)</span></div>`;
+  }
+
+  /* ---------- orders list ---------- */
+  function daysBadge(o){
+    const d = daysLeft(o.deadline);
+    if(d === null) return "";
+    if(o.status === "done") return `<span class="days-left done">đã giao</span>`;
+    if(d < 0) return `<span class="days-left overdue">trễ ${-d} ngày</span>`;
+    if(d === 0) return `<span class="days-left soon">hôm nay</span>`;
+    if(d <= 3) return `<span class="days-left soon">còn ${d} ngày</span>`;
+    return `<span class="days-left">còn ${d} ngày</span>`;
+  }
+  const MEAS_LABELS = { cao:"Chiều cao", nang:"Cân nặng", vai:"Vai", co:"Cổ", nguc:"Ngực", eo:"Eo", dai_ao:"Dài áo", vong_nach:"Vòng nách", bap_tay:"Bắp tay", co_tay:"Cổ tay", dai_tay:"Dài tay", mong:"Mông", dui:"Đùi", bap_chan:"Bắp chân", dai_quan:"Dài quần" };
+  const MEAS_GROUPS = [
+    { title:"Tổng quát", keys:["cao","nang"] },
+    { title:"Thân trên", keys:["vai","co","nguc","eo","dai_ao","vong_nach"] },
+    { title:"Tay", keys:["bap_tay","co_tay","dai_tay"] },
+    { title:"Thân dưới", keys:["mong","dui","bap_chan","dai_quan"] },
+  ];
+  const MEAS_HEADLINE = ["vai","nguc","eo","mong","cao","nang"];
+  function fmtVND(n){ const v = Math.max(0, Math.floor(Number(n)||0)); return v.toLocaleString("vi-VN") + "đ"; }
+  function fmtShort(n){
+    n = Math.max(0, Math.floor(Number(n)||0));
+    if(n >= 1000000) return (n/1000000).toFixed(n%1000000?1:0).replace(/\.0$/,"") + "tr";
+    if(n >= 1000) return Math.round(n/1000) + "k";
+    return String(n);
+  }
+  function measGroupsHTML(m){
+    const mv = m || {};
+    return MEAS_GROUPS.map(g=>`<div class="meas-sub">${g.title}</div><div class="meas-grid">${g.keys.map(k=>`<input data-f="m_${k}" value="${escAttr(mv[k]||"")}" placeholder="${MEAS_LABELS[k]}" />`).join("")}</div>`).join("");
+  }
+  function measLine(m){
+    if(!m) return "";
+    const head = MEAS_HEADLINE.filter(k=>m[k]).map(k=>`${MEAS_LABELS[k]} ${esc(m[k])}`);
+    const extra = Object.keys(m).filter(k=>m[k] && !MEAS_HEADLINE.includes(k)).length;
+    if(!head.length && !extra) return "";
+    const extraTxt = extra ? ` <span class="muted">+${extra} chỉ số</span>` : "";
+    return `<div class="oc-deadline">📏 ${head.join(" · ")}${extraTxt}</div>`;
+  }
+  function materialsSum(ms){ return (ms||[]).reduce((s,x)=>s+(Math.floor(Number(x.cost)||0)),0); }
+  function fabricLine(o){
+    if(!o.fabricType && !o.fabricMeters) return "";
+    const t = o.fabricType ? esc(o.fabricType) : "—";
+    const m = o.fabricMeters ? `${esc(o.fabricMeters)}m` : "";
+    return `<div class="oc-deadline">🧶 Vải: ${t}${m?` · ${m}`:""}</div>`;
+  }
+  function materialsLine(o){
+    const ms = o.materials||[];
+    if(!ms.length) return "";
+    return `<div class="oc-deadline">🧵 Vật liệu bổ sung: ${ms.length} loại · ước tính ${fmtVND(materialsSum(ms))}</div>`;
+  }
+  function matRowHTML(it){
+    it = it || {};
+    return `<div class="mat-row">
+      <input data-mf="name" value="${escAttr(it.name||"")}" placeholder="Tên vật liệu" />
+      <input data-mf="qty" value="${escAttr(it.qty||"")}" placeholder="Số lượng" />
+      <input data-mf="unit" value="${escAttr(it.unit||"")}" placeholder="đơn vị" />
+      <input data-mf="cost" type="number" min="0" step="1000" value="${escAttr(it.cost||"")}" placeholder="Ước tính (đ)" />
+      <button type="button" class="mat-del" data-act="delmat" title="Xoá vật liệu">×</button>
+    </div>`;
+  }
+  function materialRowsHTML(ms){ return (ms||[]).map(matRowHTML).join(""); }
+  function orderCard(o){
+    const meta = [o.character, o.series, o.client].filter(Boolean).map(esc).join(' <span class="dot">·</span> ');
+    return `<div class="order-card" data-id="${o.id}">
+      <div class="oc-top">
+        <div>
+          <div class="oc-title">${esc(o.title)}</div>
+          ${meta ? `<div class="oc-meta">${meta}</div>` : ""}
+        </div>
+        <span class="badge ${o.status}"><span class="doti"></span>${STATUS_LABEL[o.status]}</span>
+      </div>
+      <div class="oc-deadline">⏰ Deadline: <b>${fmtDate(o.deadline)}</b> ${daysBadge(o)}</div>
+      ${o.price ? `<div class="oc-deadline">💰 ${fmtVND(o.price)}</div>` : ""}
+      ${fabricLine(o)}
+      ${materialsLine(o)}
+      ${measLine(o.measurements)}
+      ${o.facebook ? `<div class="oc-deadline">🔗 <a href="${escAttr(o.facebook)}" target="_blank" rel="noopener" class="fb-link">Facebook của khách</a></div>` : ""}
+      ${o.note ? `<div class="oc-note">${esc(o.note)}</div>` : ""}
+      ${(o.images && o.images.length) ? `<div class="oc-imgs">${o.images.map(im=>`<img src="${escAttr(im.url)}" alt="${escAttr(im.name||"")}" data-act="zoom" />`).join("")}</div>` : ""}
+      <div class="oc-actions">
+        <button class="btn btn-ghost btn-sm" data-act="edit">✎ Sửa</button>
+        <button class="btn btn-ghost btn-sm" data-act="delete">🗑 Xoá</button>
+      </div>
+    </div>`;
+  }
+  function emptyOrders(){
+    return `<div class="empty-state" style="grid-column:1/-1">
+      <div class="ic">✂</div><h3>Chưa có đơn hàng nào</h3>
+      <p>Bấm “Thêm đơn hàng” để lưu đơn cosplay đầu tiên — hoặc nạp dữ liệu mẫu để xem qua.</p>
+      <button class="btn btn-outline" id="emptyAdd">＋ Thêm đơn hàng</button>
+    </div>`;
+  }
+  function renderOrders(){
+    let items = S.orders;
+    if(S.filter !== "all") items = items.filter(o=>o.status===S.filter);
+    items = items.slice().sort((a,b)=>(a.deadline||"9999").localeCompare(b.deadline||"9999"));
+    const list = document.getElementById("orderList");
+    list.innerHTML = items.length ? items.map(orderCard).join("") : emptyOrders();
+    const ea = document.getElementById("emptyAdd");
+    if(ea) ea.addEventListener("click", ()=>openOrderModal(null));
+  }
+
+  /* ---------- order modal (add/edit) ---------- */
+  function openOrderModal(o){
+    o = o || { title:"", character:"", series:"", client:"", deadline:"", status:"pending", price:0, measurements:{}, fabricType:"", fabricMeters:"", materials:[], facebook:"", note:"" };
+    const isNew = !o.id;
+    orderDraft = { ...o, images: (o.images ? o.images.slice() : []) };
+    clearPendingOrderImages();
+    openModal(`
+      <div class="modal-head">
+        <div><h3>${isNew ? "Thêm đơn hàng" : "Sửa đơn hàng"}</h3><div class="sub">Điền thông tin đơn may cosplay</div></div>
+        <button class="close" data-act="close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field"><label>Tên đơn hàng <span class="req">*</span></label><input data-f="title" value="${escAttr(o.title)}" placeholder="VD: Áo khoác Vega" /></div>
+        <div class="field-grid">
+          <div class="field"><label>Nhân vật</label><input data-f="character" value="${escAttr(o.character)}" placeholder="VD: Vega" /></div>
+          <div class="field"><label>Series / trò chơi</label><input data-f="series" value="${escAttr(o.series)}" placeholder="VD: Genshin Impact" /></div>
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>Khách hàng</label><input data-f="client" value="${escAttr(o.client)}" placeholder="Tên khách" /></div>
+          <div class="field"><label>Deadline</label><input type="date" data-f="deadline" value="${escAttr(o.deadline)}" /></div>
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>Trạng thái</label><select data-f="status">
+            <option value="pending" ${o.status==="pending"?"selected":""}>Chờ vật liệu</option>
+            <option value="sewing" ${o.status==="sewing"?"selected":""}>Đang may</option>
+            <option value="done" ${o.status==="done"?"selected":""}>Hoàn thành</option>
+          </select></div>
+          <div class="field"><label>Tiền đơn (VNĐ)</label><input type="number" min="0" step="1000" data-f="price" value="${escAttr(o.price||"")}" placeholder="VD: 2400000" /></div>
+        </div>
+        <div class="field">
+          <label>Số đo khách hàng <span class="hint-inline">(cm / kg — để trống nếu không đo)</span></label>
+          ${measGroupsHTML(o.measurements)}
+        </div>
+        <div class="field-grid">
+          <div class="field"><label>Loại vải</label><input data-f="fabricType" value="${escAttr(o.fabricType||"")}" placeholder="VD: Nhung đen, cotton, EVA foam..." /></div>
+          <div class="field"><label>Số mét vải ước tính</label><input data-f="fabricMeters" value="${escAttr(o.fabricMeters||"")}" placeholder="VD: 2.5" /></div>
+        </div>
+        <div class="field">
+          <label>Vật liệu bổ sung <span class="hint-inline">(thêm tự do + ước tính từng loại)</span></label>
+          <div class="mat-list" id="matList">${materialRowsHTML(o.materials)}</div>
+          <button type="button" class="btn btn-outline btn-sm mat-add" data-act="addmat">＋ Thêm vật liệu</button>
+        </div>
+        <div class="field"><label>Link Facebook khách hàng</label><input data-f="facebook" value="${escAttr(o.facebook||"")}" placeholder="https://facebook.com/..." /></div>
+        <div class="field"><label>Ghi chú</label><textarea data-f="note" placeholder="Quy trình, lưu ý riêng của đơn...">${esc(o.note)}</textarea></div>
+        <div class="field">
+          <label>Ảnh tham chiếu costume <span class="hint-inline">(tối đa 12 ảnh, mỗi ảnh ≤ 8MB)</span></label>
+          <div class="nb-images" id="ordImgGrid">${ordImgGridHTML()}</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-act="close">Huỷ</button>
+        <button class="btn btn-primary" data-act="save">${isNew ? "Thêm đơn" : "Lưu thay đổi"}</button>
+      </div>`);
+    document.getElementById("modalBox").dataset.editing = o.id || "";
+  }
+  async function saveOrderFromModal(){
+    const box = document.getElementById("modalBox");
+    const id = box.dataset.editing;
+    const data = { measurements: {}, materials: [] };
+    box.querySelectorAll("[data-f]").forEach(el=>{
+      const f = el.dataset.f;
+      if(f.startsWith("m_")) data.measurements[f.slice(2)] = el.value;
+      else data[f] = el.value;
+    });
+    data.price = Math.max(0, Math.floor(Number(data.price) || 0));
+    box.querySelectorAll(".mat-row").forEach(row=>{
+      const it = {};
+      row.querySelectorAll("[data-mf]").forEach(el=> it[el.dataset.mf] = el.value);
+      data.materials.push(it);
+    });
+    if(!data.title.trim()){ toast("error", "Thiếu tên", "Vui lòng nhập tên đơn hàng."); return; }
+    const btn = box.querySelector('[data-act="save"]'); const old = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Đang lưu';
+    try{
+      let saved;
+      if(id){
+        saved = await apiJSON("/api/orders/"+id, "PUT", data);
+        const i = S.orders.findIndex(o=>o.id===id); if(i>=0) S.orders[i] = saved;
+        toast("success", "Đã lưu", "Cập nhật đơn hàng.");
+      } else {
+        saved = await apiJSON("/api/orders", "POST", data);
+        S.orders.push(saved);
+        toast("success", "Đã thêm", "Đơn hàng mới đã tạo.");
+      }
+      if(pendingOrderImages.length && saved.id){
+        try{
+          const r = await uploadOrderImages(saved.id, pendingOrderImages.map(p=>p.file));
+          saved.images = (r && r.order && r.order.images) || saved.images || [];
+          const i = S.orders.findIndex(o=>o.id===saved.id); if(i>=0) S.orders[i] = saved;
+          toast("success", "Đã thêm ảnh", `${pendingOrderImages.length} ảnh costume đã tải lên.`);
+        } catch(e){ toast("error", "Lỗi tải ảnh", e.message); }
+        clearPendingOrderImages();
+      }
+      orderDraft = null;
+      closeModal(); renderStats(); renderOrders(); renderCalendar(); renderCharts();
+    } catch(e){
+      toast("error", "Lỗi", e.message);
+      btn.disabled = false; btn.innerHTML = old;
+    }
+  }
+  async function deleteOrder(id){
+    try{ await api("/api/orders/"+id, { method:"DELETE" }); S.orders = S.orders.filter(o=>o.id!==id);
+      renderStats(); renderOrders(); renderCalendar(); renderCharts(); toast("success", "Đã xoá", "Đơn hàng đã xoá."); }
+    catch(e){ toast("error", "Lỗi", e.message); }
+  }
+  async function resetAll(){
+    try{
+      const r = await api("/api/reset", { method:"POST" });
+      S.orders = []; S.notes = [];
+      renderStats(); renderOrders(); renderCalendar(); renderCharts();
+      toast("success", "Đã xoá toàn bộ", "Đơn hàng, ô ghi chú và ảnh đã dọn sạch.");
+    } catch(e){ toast("error", "Lỗi", e.message); }
+  }
+
+  /* ---------- order costume images ---------- */
+  function clearPendingOrderImages(){
+    pendingOrderImages.forEach(p=>{ try{ URL.revokeObjectURL(p.url); }catch(_){} });
+    pendingOrderImages = [];
+  }
+  function ordImgGridHTML(){
+    const ex = ((orderDraft && orderDraft.images) || []).map(im=>
+      `<div class="nb-img" data-img="${escAttr(im.id)}"><img src="${escAttr(im.url)}" alt="${escAttr(im.name||"")}" /><button class="del" data-act="delordimg" title="Xoá ảnh">×</button></div>`).join("");
+    const pe = pendingOrderImages.map((p,i)=>
+      `<div class="nb-img" data-pidx="${i}"><img src="${escAttr(p.url)}" alt="ảnh mới" /><button class="del" data-act="delpordimg" title="Bỏ ảnh">×</button></div>`).join("");
+    const tile = `<label class="nb-add-tile" data-act="addordimg"><span class="plus">＋</span><span>Thêm ảnh costume</span><input type="file" accept="image/*" multiple class="ord-upload" /></label>`;
+    return ex + pe + tile;
+  }
+  function refreshOrdImgGrid(){ const g = document.getElementById("ordImgGrid"); if(g) g.innerHTML = ordImgGridHTML(); }
+  async function deleteOrderImage(imgId){
+    if(!orderDraft || !orderDraft.id) return;
+    try{ await api("/api/orders/"+orderDraft.id+"/images/"+imgId, { method:"DELETE" });
+      orderDraft.images = orderDraft.images.filter(i=>i.id!==imgId);
+      refreshOrdImgGrid(); toast("success", "Đã xoá ảnh", "");
+    } catch(e){ toast("error", "Lỗi", e.message); }
+  }
+
+  /* ---------- charts / revenue ---------- */
+  function labelMonth(ym){ const [y,m] = ym.split("-"); return `${m}/${(y||"").slice(2)}`; }
+  function emptyChart(msg){ return `<div class="chart-empty"><div class="ic">📊</div><p>${esc(msg)}</p></div>`; }
+  const CHART_COLORS = { pending:"#d97706", sewing:"#be185d", done:"#0f766e", cal:"#be185d", other:"#9d174d" };
+  function donutSVG(data){
+    const total = data.reduce((s,d)=>s+d[0],0);
+    if(!total) return emptyChart("Chưa có đơn hàng nào để thống kê.");
+    const r=60, C=2*Math.PI*r, cx=80, cy=80;
+    let acc=0;
+    const segs = data.map(([n,label,cls])=>{
+      const len = (n/total)*C; const off=-acc; acc+=len;
+      return `<circle r="${r}" cx="${cx}" cy="${cy}" fill="none" stroke="${CHART_COLORS[cls]||CHART_COLORS.other}" stroke-width="26" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    }).join("");
+    const legend = data.map(([n,label,cls])=>`<li><span class="sw ${cls}"></span>${esc(label)}: <b>${n}</b> đơn</li>`).join("");
+    return `<div class="donut-wrap"><svg viewBox="0 0 160 160" class="donut">${segs}<text x="80" y="78" text-anchor="middle" class="donut-num">${total}</text><text x="80" y="98" text-anchor="middle" class="donut-lbl">đơn hàng</text></svg><ul class="chart-legend">${legend}</ul></div>`;
+  }
+  function barSVG(data){
+    const vals = data.map(d=>d[1]);
+    const max = Math.max(1, ...vals);
+    const W=340, H=200, padL=16, padR=16, padT=22, padB=34;
+    const innerW = W-padL-padR, innerH = H-padT-padB;
+    const slot = innerW/Math.max(1,data.length), bw = slot*0.56;
+    const bars = data.map(([lbl,val,cls],i)=>{
+      const h = (val/max)*innerH;
+      const x = padL + i*slot + (slot-bw)/2;
+      const y = padT + innerH - h;
+      return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="4" fill="${CHART_COLORS[cls]||CHART_COLORS.other}"/>`
+        + (val ? `<text x="${(x+bw/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" class="bar-val">${fmtShort(val)}</text>` : "")
+        + `<text x="${(x+bw/2).toFixed(1)}" y="${H-padB+16}" text-anchor="middle" class="bar-lbl">${esc(lbl)}</text>`;
+    }).join("");
+    return `<svg viewBox="0 0 ${W} ${H}" class="bar-chart">${bars}<line x1="${padL}" y1="${padT+innerH}" x2="${W-padR}" y2="${padT+innerH}" stroke="#e9d7de"/></svg>`;
+  }
+  function renderCharts(){
+    const root = document.getElementById("chartsBody");
+    if(!root) return;
+    const orders = S.orders || [];
+    const priceOf = o => Math.max(0, Math.floor(Number(o.price)||0));
+    const by = st => orders.filter(o=>o.status===st);
+    const sum = arr => arr.reduce((s,o)=>s+priceOf(o),0);
+    const total = sum(orders);
+    const doneRev = sum(by("done")), sewRev = sum(by("sewing")), pendRev = sum(by("pending"));
+    const cnt = { pending:by("pending").length, sewing:by("sewing").length, done:by("done").length };
+
+    const months = {};
+    orders.forEach(o=>{ const k=(o.deadline||"").slice(0,7); if(!/^\d{4}-\d{2}$/.test(k)) return; if(!months[k]) months[k]={month:k,rev:0,cnt:0}; months[k].rev+=priceOf(o); months[k].cnt++; });
+    const monthArr = Object.values(months).sort((a,b)=>a.month.localeCompare(b.month));
+
+    const statCards = `
+      <div class="chart-stat big"><span class="num">${fmtVND(total)}</span><span class="label">Tổng doanh thu toàn bộ đơn</span></div>
+      <div class="chart-stat done"><span class="num">${fmtVND(doneRev)}</span><span class="label">💰 Đã kiếm được (hoàn thành)</span></div>
+      <div class="chart-stat sewing"><span class="num">${fmtVND(sewRev)}</span><span class="label">Đang may</span></div>
+      <div class="chart-stat pending"><span class="num">${fmtVND(pendRev)}</span><span class="label">Chờ vật liệu</span></div>`;
+
+    const donut = donutSVG([[cnt.pending,"Chờ vật liệu","pending"],[cnt.sewing,"Đang may","sewing"],[cnt.done,"Hoàn thành","done"]]);
+    const revBars = barSVG([["Chờ VL",pendRev,"pending"],["Đang may",sewRev,"sewing"],["Hoàn thành",doneRev,"done"]]);
+    const monthBars = monthArr.length
+      ? barSVG(monthArr.map(x=>[labelMonth(x.month),x.rev,"cal"]))
+      : emptyChart("Chưa có đơn hàng nào có deadline hợp lệ để thống kê theo tháng.");
+
+    root.innerHTML = `
+      <div class="chart-stats">${statCards}</div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3>Đơn hàng theo trạng thái</h3>${donut}</div>
+        <div class="chart-card"><h3>Doanh thu theo trạng thái</h3>${revBars}</div>
+        <div class="chart-card wide"><h3>Doanh thu theo tháng (deadline)</h3>${monthBars}</div>
+      </div>`;
+  }
+
+  /* ---------- calendar ---------- */
+  function renderWeekdays(){
+    document.getElementById("calWeekdays").innerHTML = ["CN","T2","T3","T4","T5","T6","T7"].map(d=>`<div>${d}</div>`).join("");
+  }
+  function renderCalendar(){
+    const cur = S.cursor; const y = cur.getFullYear(), m = cur.getMonth();
+    document.getElementById("calTitle").textContent = `${THANG[m]} ${y}`;
+    const first = new Date(y, m, 1);
+    const gridStart = new Date(y, m, 1 - first.getDay());
+    const todayStr = isoDate(new Date());
+    let html = "";
+    for(let i=0; i<42; i++){
+      const d = new Date(gridStart); d.setDate(gridStart.getDate()+i);
+      const ds = isoDate(d);
+      const inMonth = d.getMonth() === m;
+      const deadlines = S.orders.filter(o=>o.deadline===ds);
+      const notes = S.notes.filter(n=>n.date===ds).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+      let dd = deadlines.slice(0,2).map(o=>`<span class="dd-badge ${o.status==="done"?"done":""}">${esc(o.title)}</span>`).join("");
+      if(deadlines.length > 2) dd += `<span class="more">+${deadlines.length-2} đơn</span>`;
+      let chips = notes.slice(0,2).map(n=>`<span class="dn-chip" data-c="${n.color}">${esc(n.title || "Ô ghi chú")}</span>`).join("");
+      if(notes.length > 2) chips += `<span class="more">+${notes.length-2} ô</span>`;
+      html += `<div class="cal-day ${inMonth ? "" : "other-month"} ${ds===todayStr ? "today" : ""}" data-date="${ds}">
+        <div class="day-num">${d.getDate()}</div>
+        <div class="day-deadlines">${dd}</div>
+        <div class="day-notes">${chips}</div>
+      </div>`;
+    }
+    document.getElementById("calGrid").innerHTML = html;
+  }
+
+  /* ---------- note box ---------- */
+  function noteBoxHTML(n){
+    const dots = NOTE_COLORS.map(c=>`<span class="color-dot ${c===n.color?"sel":""}" data-c="${c}" data-act="color" title="${c}"></span>`).join("");
+    const imgs = n.images.map(im=>`<div class="nb-img" data-img="${im.id}"><img src="${im.url}" alt="${escAttr(im.name)}" /><button class="del" data-act="delimg" title="Xoá ảnh">×</button></div>`).join("");
+    return `<div class="note-box" data-c="${n.color}" data-id="${n.id}">
+      <div class="nb-bar"></div>
+      <div class="nb-body">
+        <div class="nb-head">
+          <input class="nb-title" data-field="title" placeholder="Tiêu đề ô..." value="${escAttr(n.title)}" />
+          <div class="color-dots">${dots}</div>
+          <div class="nb-actions"><button class="mini del" data-act="delbox" title="Xoá ô">×</button></div>
+        </div>
+        <textarea class="nb-content" data-field="content" placeholder="Ghi chú cho ô này...">${esc(n.content)}</textarea>
+        <div class="nb-save-hint"></div>
+        <div class="nb-images">
+          ${imgs}
+          <label class="nb-add-tile" data-act="addimg"><span class="plus">＋</span><span>Thêm ảnh</span><input type="file" accept="image/*" multiple class="nb-upload" /></label>
+        </div>
+      </div>
+    </div>`;
+  }
+  function noteBoxesWrapHTML(dateStr){
+    const notes = S.notes.filter(n=>n.date===dateStr).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+    return notes.length ? notes.map(noteBoxHTML).join("")
+      : `<div class="empty-state" style="padding:1.5rem"><div class="ic">🗒</div><p>Chưa có ô ghi chú nào ngày này. Bấm “Thêm ô” để tạo ô đầu tiên.</p></div>`;
+  }
+  function openDayModal(dateStr){
+    currentDay = dateStr;
+    const orders = S.orders.filter(o=>o.deadline===dateStr);
+    const notes = S.notes.filter(n=>n.date===dateStr);
+    const dlItems = orders.length ? orders.map(o=>`<div class="dl-item">
+        <span class="badge ${o.status}"><span class="doti"></span>${STATUS_LABEL[o.status]}</span>
+        <span class="dl-title">${esc(o.title)}</span>
+        ${o.client ? `<span class="dl-meta">${esc(o.client)}</span>` : ""}
+      </div>`).join("")
+      : `<p class="muted" style="font-size:.86rem;padding:.4rem 0">Không có đơn nào đến hạn ngày này.</p>`;
+    openModal(`
+      <div class="modal-head">
+        <div><h3>${fmtDateLong(dateStr)}</h3><div class="sub" id="daySub">${orders.length} đơn đến hạn · ${notes.length} ô ghi chú</div></div>
+        <button class="close" data-act="close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="day-section">
+          <h4>Đơn hàng đến deadline <span class="count">${orders.length}</span></h4>
+          ${dlItems}
+        </div>
+        <div class="day-section">
+          <h4>Ô ghi chú <span class="count">${notes.length}</span></h4>
+          <div class="note-boxes" id="noteBoxes">${noteBoxesWrapHTML(dateStr)}</div>
+          <button class="btn btn-outline btn-sm" data-act="addbox" style="margin-top:.8rem">＋ Thêm ô ghi chú</button>
+        </div>
+      </div>`, true);
+  }
+  function renderDayBoxes(){
+    if(!currentDay) return;
+    const wrap = document.getElementById("noteBoxes"); if(!wrap) return;
+    wrap.innerHTML = noteBoxesWrapHTML(currentDay);
+    const sub = document.getElementById("daySub");
+    if(sub){ const od = S.orders.filter(o=>o.deadline===currentDay).length;
+      const nn = S.notes.filter(n=>n.date===currentDay).length;
+      sub.textContent = `${od} đơn đến hạn · ${nn} ô ghi chú`; }
+    // cập nhật header count
+    const heads = document.querySelectorAll("#modalBox .day-section h4 .count");
+    if(heads[0]) heads[0].textContent = S.orders.filter(o=>o.deadline===currentDay).length;
+    if(heads[1]) heads[1].textContent = S.notes.filter(n=>n.date===currentDay).length;
+  }
+  function syncBoxInputs(id){
+    const n = S.notes.find(x=>x.id===id); if(!n) return;
+    const box = document.querySelector(`.note-box[data-id="${id}"]`); if(!box) return;
+    const t = box.querySelector('[data-field="title"]'); const c = box.querySelector('[data-field="content"]');
+    if(t) n.title = t.value; if(c) n.content = c.value;
+  }
+  function renderBoxImages(id){
+    const n = S.notes.find(x=>x.id===id); if(!n) return;
+    const box = document.querySelector(`.note-box[data-id="${id}"]`); if(!box) return;
+    const wrap = box.querySelector(".nb-images"); if(!wrap) return;
+    const imgs = n.images.map(im=>`<div class="nb-img" data-img="${im.id}"><img src="${im.url}" alt="${escAttr(im.name)}" /><button class="del" data-act="delimg" title="Xoá ảnh">×</button></div>`).join("");
+    wrap.innerHTML = imgs + `<label class="nb-add-tile" data-act="addimg"><span class="plus">＋</span><span>Thêm ảnh</span><input type="file" accept="image/*" multiple class="nb-upload" /></label>`;
+  }
+  function scheduleNoteSave(id){
+    clearTimeout(saveTimers[id]);
+    saveTimers[id] = setTimeout(()=>saveNote(id), 600);
+  }
+  async function saveNote(id){
+    const n = S.notes.find(x=>x.id===id); if(!n) return;
+    syncBoxInputs(id);
+    const box = document.querySelector(`.note-box[data-id="${id}"]`);
+    const hint = box && box.querySelector(".nb-save-hint");
+    if(hint){ hint.textContent = "đang lưu..."; hint.classList.remove("saved"); }
+    try{
+      const upd = await apiJSON("/api/notes/"+id, "PUT", { date:n.date, title:n.title, content:n.content, color:n.color });
+      Object.assign(n, upd);
+      if(hint){ hint.textContent = "✓ đã lưu"; hint.classList.add("saved"); setTimeout(()=>{ hint.textContent=""; hint.classList.remove("saved"); }, 1400); }
+      renderCalendar();
+    } catch(e){ if(hint) hint.textContent = "lỗi lưu"; toast("error", "Lỗi lưu", e.message); }
+  }
+  async function addNoteBox(dateStr){
+    try{
+      const n = await apiJSON("/api/notes", "POST", { date:dateStr, title:"", content:"", color:"rose" });
+      S.notes.push(n);
+      renderDayBoxes(); renderCalendar();
+      setTimeout(()=>{ const t = document.querySelector(`.note-box[data-id="${n.id}"] .nb-title`); if(t) t.focus(); }, 60);
+    } catch(e){ toast("error", "Lỗi", e.message); }
+  }
+  async function deleteNote(id){
+    try{ await api("/api/notes/"+id, { method:"DELETE" }); S.notes = S.notes.filter(n=>n.id!==id);
+      renderDayBoxes(); renderCalendar(); toast("success", "Đã xoá ô", "Ô ghi chú đã xoá."); }
+    catch(e){ toast("error", "Lỗi", e.message); }
+  }
+  function changeNoteColor(id, c){
+    const n = S.notes.find(x=>x.id===id); if(!n) return;
+    syncBoxInputs(id); n.color = c;
+    const box = document.querySelector(`.note-box[data-id="${id}"]`);
+    if(box){ box.setAttribute("data-c", c); box.querySelectorAll(".color-dot").forEach(d=>d.classList.toggle("sel", d.dataset.c===c)); }
+    apiJSON("/api/notes/"+id, "PUT", { date:n.date, title:n.title, content:n.content, color:c })
+      .then(upd=>{ Object.assign(n, upd); renderCalendar(); })
+      .catch(e=>toast("error", "Lỗi", e.message));
+  }
+  async function uploadImages(id, files){
+    const n = S.notes.find(x=>x.id===id); if(!n) return;
+    const box = document.querySelector(`.note-box[data-id="${id}"]`);
+    const tile = box && box.querySelector(".nb-add-tile");
+    if(tile){ tile.style.pointerEvents = "none"; tile.innerHTML = '<span class="spin"></span><span>Đang tải...</span>'; }
+    try{
+      const fd = new FormData(); for(const f of files) fd.append("images", f);
+      const r = await api("/api/notes/"+id+"/images", { method:"POST", body:fd });
+      n.images = r.note.images;
+      renderBoxImages(id); renderCalendar();
+      toast("success", "Đã thêm ảnh", `${r.added.length} ảnh đã thêm vào ô.`);
+    } catch(e){
+      toast("error", "Lỗi upload", e.message);
+      if(box) renderBoxImages(id);
+    }
+  }
+  function deleteImage(nid, iid){
+    const n = S.notes.find(x=>x.id===nid); if(!n) return;
+    api("/api/notes/"+nid+"/images/"+iid, { method:"DELETE" })
+      .then(()=>{ n.images = n.images.filter(i=>i.id!==iid); renderBoxImages(nid); renderCalendar(); toast("success", "Đã xoá ảnh", ""); })
+      .catch(e=>toast("error", "Lỗi", e.message));
+  }
+
+  /* ---------- event wiring ---------- */
+  document.querySelectorAll(".nav-link").forEach(b=>b.addEventListener("click", ()=>setTab(b.dataset.tab)));
+  document.getElementById("brandHome").addEventListener("click", ()=>setTab("orders"));
+
+  document.getElementById("addOrderBtn").addEventListener("click", ()=>openOrderModal(null));
+  document.getElementById("filterGroup").addEventListener("click", e=>{
+    const b = e.target.closest("button[data-filter]"); if(!b) return;
+    S.filter = b.dataset.filter;
+    document.querySelectorAll("#filterGroup button").forEach(x=>x.classList.toggle("active", x===b));
+    renderOrders();
+  });
+  document.getElementById("orderList").addEventListener("click", e=>{
+    const card = e.target.closest(".order-card"); if(!card) return;
+    const o = S.orders.find(x=>x.id===card.dataset.id); if(!o) return;
+    if(e.target.closest('[data-act="edit"]')) openOrderModal(o);
+    else if(e.target.closest('[data-act="delete"]')) confirmModal("Xoá đơn hàng", `Xoá đơn “${o.title}”? Hành động không thể huỷ.`, ()=>deleteOrder(o.id));
+    else if(e.target.closest('[data-act="zoom"]')) openLightbox(e.target.src);
+  });
+
+  document.getElementById("calPrev").addEventListener("click", ()=>{ S.cursor = new Date(S.cursor.getFullYear(), S.cursor.getMonth()-1, 1); renderCalendar(); });
+  document.getElementById("calNext").addEventListener("click", ()=>{ S.cursor = new Date(S.cursor.getFullYear(), S.cursor.getMonth()+1, 1); renderCalendar(); });
+  document.getElementById("calToday").addEventListener("click", ()=>{ S.cursor = monthStart(new Date()); renderCalendar(); });
+  document.getElementById("calGrid").addEventListener("click", e=>{
+    const day = e.target.closest(".cal-day"); if(!day) return;
+    openDayModal(day.dataset.date);
+  });
+
+  document.getElementById("seedBtn").addEventListener("click", async()=>{
+    try{
+      const r = await api("/api/seed", { method:"POST" });
+      if(r.ok){ toast("success", "Đã nạp mẫu", `${r.orders} đơn · ${r.notes} ô ghi chú.`); await loadAll(); }
+      else toast("info", "Không nạp lại", r.msg);
+    } catch(e){ toast("error", "Lỗi", e.message); }
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(!S.orders.length && !S.notes.length){ toast("info", "Không có dữ liệu", "Chưa có đơn hàng hay ô ghi chú để xoá."); return; }
+    confirmModal("Xoá toàn bộ dữ liệu", "Toàn bộ đơn hàng, ô ghi chú và ảnh sẽ bị xoá vĩnh viễn — không thể huỷ.", ()=>resetAll());
+  });
+
+  // modal: delegated click (actions + image zoom)
+  document.getElementById("modalBox").addEventListener("click", async e=>{
+    const actEl = e.target.closest("[data-act]");
+    if(actEl){
+      const act = actEl.dataset.act;
+      if(act === "close") return closeModal();
+      if(act === "save") return saveOrderFromModal();
+      if(act === "confirm"){ const cb = pendingConfirm; pendingConfirm = null; closeModal(); if(cb) cb(); return; }
+      if(act === "addmat"){ const list = document.getElementById("matList"); if(list) list.insertAdjacentHTML("beforeend", matRowHTML({})); return; }
+      if(act === "delmat"){ const row = actEl.closest(".mat-row"); if(row) row.remove(); return; }
+      if(act === "addordimg") return; // <label> tự mở hộp chọn file
+      if(act === "delordimg"){ const imEl = actEl.closest(".nb-img"); return deleteOrderImage(imEl && imEl.dataset.img); }
+      if(act === "delpordimg"){
+        const imEl = actEl.closest(".nb-img"); const idx = Number(imEl && imEl.dataset.pidx);
+        if(!isNaN(idx) && pendingOrderImages[idx]){ try{ URL.revokeObjectURL(pendingOrderImages[idx].url); }catch(_){} pendingOrderImages.splice(idx,1); refreshOrdImgGrid(); }
+        return;
+      }
+      if(act === "addbox") return addNoteBox(currentDay);
+      if(act === "delbox"){ const id = actEl.closest(".note-box").dataset.id; return confirmModal("Xoá ô ghi chú", "Ô này và toàn bộ ảnh trong ô sẽ bị xoá.", ()=>deleteNote(id)); }
+      if(act === "color"){ const box = actEl.closest(".note-box"); return changeNoteColor(box.dataset.id, actEl.dataset.c); }
+      if(act === "delimg"){ const box = actEl.closest(".note-box"); const im = actEl.closest(".nb-img"); return deleteImage(box.dataset.id, im.dataset.img); }
+      if(act === "addimg") return; // <label> tự mở hộp chọn file
+    }
+    const im = e.target.closest(".nb-img");
+    if(im){ const img = im.querySelector("img"); if(img) openLightbox(img.src); }
+  });
+  // modal: delegated input (live-sync title/content + debounce save)
+  document.getElementById("modalBox").addEventListener("input", e=>{
+    const box = e.target.closest(".note-box"); if(!box || !e.target.dataset.field) return;
+    const n = S.notes.find(x=>x.id===box.dataset.id); if(!n) return;
+    n[e.target.dataset.field] = e.target.value;
+    scheduleNoteSave(n.id);
+  });
+  // modal: delegated change (file upload — note + order costume images)
+  document.getElementById("modalBox").addEventListener("change", e=>{
+    if(e.target.classList.contains("ord-upload")){
+      const files = [...e.target.files];
+      const have = ((orderDraft && orderDraft.images) ? orderDraft.images.length : 0) + pendingOrderImages.length;
+      const room = Math.max(0, 12 - have);
+      const take = files.slice(0, room);
+      if(take.length < files.length) toast("info", "Giới hạn ảnh", `Đơn tối đa 12 ảnh. Đã thêm ${take.length}/${files.length}.`);
+      take.forEach(f=> pendingOrderImages.push({ file:f, url:URL.createObjectURL(f) }));
+      refreshOrdImgGrid();
+      e.target.value = "";
+      return;
+    }
+    if(!e.target.classList.contains("nb-upload")) return;
+    const box = e.target.closest(".note-box"); if(!box) return;
+    const files = [...e.target.files]; if(files.length) uploadImages(box.dataset.id, files);
+    e.target.value = "";
+  });
+  // close modal khi click ra ngoài
+  document.getElementById("modalRoot").addEventListener("click", e=>{ if(e.target.id === "modalRoot") closeModal(); });
+  // lightbox
+  document.getElementById("lightbox").addEventListener("click", closeLightbox);
+  // Esc
+  document.addEventListener("keydown", e=>{ if(e.key === "Escape"){
+    if(document.getElementById("lightbox").classList.contains("show")) closeLightbox();
+    else closeModal();
+  }});
+
+  /* ---------- decorative bunnies ---------- */
+  const BUNNY_SIL = '<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg"><ellipse cx="42" cy="34" rx="11" ry="30" fill="#2A2622"/><ellipse cx="78" cy="34" rx="11" ry="30" fill="#2A2622"/><circle cx="60" cy="80" r="34" fill="#2A2622"/></svg>';
+  document.getElementById("cb1").innerHTML = BUNNY_SIL;
+  document.getElementById("cb2").innerHTML = BUNNY_SIL;
+
+  /* ---------- init ---------- */
+  renderWeekdays();
+  loadAll().catch(e=>toast("error", "Không tải được dữ liệu", e.message));
+  </script>
+</body>
+</html>
