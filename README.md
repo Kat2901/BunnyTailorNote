@@ -1,7 +1,5 @@
 # BunnyTailor — Sổ ghi chú may cosplay (bản GitHub Pages + PWA)
 
-Bản **static PWA** của app BunnyTailor: chạy hoàn toàn trong trình duyệt, **không cần server/backend**, host miễn phí trên GitHub Pages. Có thể **cài vào màn hình** (Add to Home Screen) và **chạy offline**. Toàn bộ dữ liệu lưu trong **IndexedDB** của trình duyệt.
-
 ## Các file
 
 | File | Vai trò |
@@ -51,10 +49,7 @@ git push
 4. Bấm **Save**.
 
 ### Bước 3 — Chờ ~1-2 phút
-GitHub build xong sẽ hiện link dạng:
-```
-https://kat2901.github.io/BunnyTailorNote/
-```
+
 Mở link → app chạy online.
 
 ### Cập nhật sau này
@@ -83,7 +78,3 @@ Mỗi lần sửa code → `git push` → GitHub Pages tự cập nhật sau ~1-
 - **Dữ liệu mẫu**: nạp 4 đơn + 4 ô ghi chú demo (deadline theo ngày hiện tại).
 - **Xoá tất cả**: xoá toàn bộ đơn hàng + ô ghi chú + ảnh (có xác nhận).
 
-## Lưu ý
-
-- Bản này **không đồng bộ với bản iOS** (bản iOS có IndexedDB riêng trên điện thoại). Mỗi thiết bị một bộ data.
-- Nếu sau này cần đồng bộ đa thiết bị → chuyển sang bản có server (Render + MongoDB Atlas) hoặc Atlas Data API.
