@@ -1,22 +1,15 @@
-# Phụ thuộc
-node_modules/
-
-# Dữ liệu người dùng (KHÔNG đẩy data cá nhân lên GitHub)
-data/*.local.json
-data/private/
-
-# Log
-*.log
-npm-debug.log*
-
 # Hệ điều hành
 .DS_Store
 Thumbs.db
-
 # Editor
 .vscode/
 .idea/
-
-# Môi trường
+*.swp
+# Log
+*.log
+npm-debug.log*
+# Node (nếu có thử nghiệm local)
+node_modules/
+# Biến môi trường
 .env
 .env.local

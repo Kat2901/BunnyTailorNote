@@ -1,93 +1,89 @@
-<<<<<<< HEAD
-# BunnyTailor — Sổ ghi chú cho thợ may cosplay
+# BunnyTailor — Sổ ghi chú may cosplay (bản GitHub Pages + PWA)
 
-App ghi chú cá nhân để theo dõi **đơn hàng may cosplay** + **lịch hẹn deadline** + **ô ghi chú** (mỗi ô chèn ảnh + ghi chú, ghim theo ngày). Pure Node.js, **không dependency** — chỉ cần Node 18+.
+Bản **static PWA** của app BunnyTailor: chạy hoàn toàn trong trình duyệt, **không cần server/backend**, host miễn phí trên GitHub Pages. Có thể **cài vào màn hình** (Add to Home Screen) và **chạy offline**. Toàn bộ dữ liệu lưu trong **IndexedDB** của trình duyệt.
 
+## Các file
 
-## Chạy
+| File | Vai trò |
+|------|---------|
+| `index.html` | Giao diện (3 tab: Đơn hàng, Lịch, Biểu đồ) + meta PWA |
+| `styles.css` | Giao diện pastel + theme thỏ |
+| `app.js` | Logic chính (render, form, CRUD, lịch, biểu đồ, đăng ký service worker) |
+| `db.js` | Lớp dữ liệu IndexedDB (thay thế server Node.js) |
+| `manifest.json` | Cấu hình PWA (tên, icon, theme, hiển thị standalone) |
+| `sw.js` | Service worker — cache app shell để chạy offline |
+| `icon-192.png`, `icon-512.png`, `favicon.png` | Icon PWA (bunny face pastel) |
+| `.nojekyll` | File rỗng — báo GitHub Pages bỏ qua xử lý Jekyll (để manifest/sw không bị lọc) |
+| `.gitignore` | Bỏ qua file hệ điều hành/editor/log |
+
+Đây là toàn bộ những file cần có. Không có `server.js`, không `node_modules`, không cần cài đặt gì.
+
+## Chạy thử trên máy (không cần cài gì)
+
+### Cách 1 — Mở trực tiếp
+Bấm đúp vào `index.html` → mở trong browser.
+(Lưu ý: service worker và manifest chỉ hoạt động qua `http(s)://`, không qua `file://` — muốn test PWA/offline đầy đủ thì dùng Cách 2.)
+
+### Cách 2 — Chạy local server (khuyến nghị để test PWA)
+```
+cd thư-mục-chứa-các-file
+python -m http.server 8000
+```
+Mở browser tại `http://localhost:8000`.
+
+## Deploy lên GitHub Pages
+
+### Bước 1 — Đẩy các file lên repo GitHub
+Đặt **toàn bộ các file** ở **thư mục gốc** của repo (ví dụ repo `Kat2901/BunnyTailorNote`). Nếu repo đã có file cũ (bản Node.js với `server.js`, `package.json`, `data/`, `public/`), xoá chúng đi — chỉ giữ các file của bản này ở gốc.
+
+Quan trọng: phải có cả file **`.nojekyll`** (rỗng) ở gốc, nếu không GitHub Pages có thể lọc mất `manifest.json` hoặc file có dấu gạch dưới.
 
 ```bash
-cd BunnyTailorWeb
-node server.js
-# → http://localhost:3000   (cổng bận sẽ tự thử 3001, 3002…)
+git add index.html styles.css app.js db.js manifest.json sw.js icon-192.png icon-512.png favicon.png .nojekyll .gitignore README.md
+git commit -m "Bản static PWA + IndexedDB (GitHub Pages)"
+git push
 ```
 
-Cấu hình cổng: `PORT=4000 node server.js`
+### Bước 2 — Bật GitHub Pages
+1. Vào repo trên GitHub → **Settings** → **Pages** (menu bên trái).
+2. **Build and deployment** → **Source**: **Deploy from a branch**.
+3. **Branch**: `main` (hoặc `master`) → thư mục **/(root)**.
+4. Bấm **Save**.
 
-Lần đầu chạy sẽ tự tạo `data/` (rỗng). Mở web, bấm **“Dữ liệu mẫu”** trên thanh nav để nạp vài đơn + ô ghi chú demo, hoặc bấm **“＋ Thêm đơn hàng”** để bắt đầu ngay.
-
-## Ba tab chính
-
-**1. Đơn hàng** — quản lý từng đơn may:
-- Tên đơn · nhân vật · series · khách hàng · deadline · ghi chú.
-- **Tiền đơn (VNĐ)**: số tiền khách trả, dùng để tính doanh thu. Hiển thị dạng `2.400.000đ` trên thẻ.
-- **Số đo khách hàng**: lưới đầy đủ 15 chỉ số, chia 4 nhóm — *Tổng quát* (Chiều cao, Cân nặng) · *Thân trên* (Vai, Cổ, Ngực, Eo, Dài áo, Vòng nách) · *Tay* (Bắp tay, Cổ tay, Dài tay) · *Thân dưới* (Mông, Đùi, Bắp chân, Dài quần). Mọi trường tuỳ chọn — để trống nếu không đo. Thẻ đơn hiện 6 chỉ số chính + “+N chỉ số” nếu còn.
-- **Loại vải** + **Số mét vải ước tính**: ghi vải chính của đơn.
-- **Vật liệu bổ sung**: nút **“＋ Thêm vật liệu”** thêm tự do từng loại (tên · số lượng · đơn vị · ước tính tiền). Mỗi dòng xoá được bằng nút ×. Tổng ước tính hiện trên thẻ đơn.
-- **Ảnh tham chiếu costume**: nút **“＋ Thêm ảnh costume”** tải nhiều ảnh cùng lúc (tối đa 12 ảnh/đơn, mỗi ảnh ≤ 8MB). Ảnh chọn xong hiện preview ngay trong form; bấm × để bỏ. Khi lưu đơn, ảnh được tải lên server và hiện thành dải thumbnail trên thẻ đơn — bấm ảnh để phóng to (lightbox).
-- **Link Facebook khách hàng**: ô URL, hiển thị thành link bấm mở được trên thẻ đơn.
-- Trạng thái: **Chờ vật liệu → Đang may → Hoàn thành**.
-- Bảng thống kê số lượng + bộ lọc theo trạng thái + thẻ **💰 Đã thu (hoàn thành)**.
-- Mỗi đơn hiển thị số ngày còn đến deadline (hoặc “trễ X ngày” / “hôm nay”).
-- Mọi deadline tự động lên lịch ở tab Lịch.
-
-**2. Lịch** — monthly calendar:
-- Lưới 7 cột (CN → T7), chuyển tháng bằng ‹ › hoặc nút **Hôm nay**.
-- Mỗi ô ngày hiển thị: badge deadline đơn (màu rose) + chip ô ghi chú (5 màu tuỳ chọn).
-- **Bấm vào một ngày** → mở ô chi tiết ngày:
-  - Danh sách đơn hàng đến deadline ngày đó.
-  - **Ô ghi chú (sub-function)**: bấm **“＋ Thêm ô ghi chú”** để tạo bao nhiêu ô tuỳ ý. Mỗi ô có:
-    - Tiêu đề + ghi chú (tự lưu khi bạn ngừng gõ ~0.6 giây).
-    - 5 màu để phân loại (rose / gold / sage / cream / lilac).
-    - **Chèn nhiều ảnh** (bấm ô “＋ Thêm ảnh”, chọn 1 hoặc nhiều ảnh — tối đa 12 ảnh/ô, mỗi ảnh ≤ 8 MB).
-    - Bấm ảnh để phóng to (lightbox), bấm × để xoá ảnh.
-    - Xoá cả ô khi không cần.
-
-**3. Biểu đồ** — tổng quan &amp; doanh thu:
-- 4 thẻ tổng tiền: **Tổng doanh thu toàn bộ đơn** · **💰 Đã kiếm được (hoàn thành)** · **Đang may** · **Chờ vật liệu** (tính từ `price` từng đơn).
-- **Donut**: đơn hàng theo trạng thái (Chờ vật liệu / Đang may / Hoàn thành).
-- **Bar**: doanh thu theo trạng thái.
-- **Bar**: doanh thu theo tháng (dựa trên deadline đơn).
-- Biểu đồ vẽ bằng SVG inline (không cần thư viện ngoài), cập nhật tự động mỗi khi thêm/sửa/xoá đơn.
-
-## Cấu trúc
-
+### Bước 3 — Chờ ~1-2 phút
+GitHub build xong sẽ hiện link dạng:
 ```
-BunnyTailorWeb/
-├── server.js            # Server Node thuần: REST API + static + lưu JSON + upload ảnh
-├── public/
-│   ├── index.html       # HTML 3 tab + toàn bộ JS inline (orders CRUD, calendar, ô ghi chú, biểu đồ)
-│   └── styles.css       # Design system pastel/thỏ + component calendar/ô ghi chú/biểu đồ
-└── data/                # Tự tạo khi chạy
-    ├── db.json          # { orders, notes }
-    └── uploads/         # Ảnh chèn vào ô ghi chú (tự tạo khi có upload đầu tiên)
+https://kat2901.github.io/BunnyTailorNote/
 ```
+Mở link → app chạy online.
 
-## API (cho ai muốn tự động hoá)
+### Cập nhật sau này
+Mỗi lần sửa code → `git push` → GitHub Pages tự cập nhật sau ~1-2 phút.
 
-| Phương thức | Đường dẫn | Chức năng |
-| --- | --- | --- |
-| `GET` | `/api/orders` | Danh sách đơn (sắp xếp theo deadline) |
-| `POST` | `/api/orders` | Tạo đơn (JSON) |
-| `PUT` | `/api/orders/:id` | Sửa đơn |
-| `DELETE` | `/api/orders/:id` | Xoá đơn (kèm xoá ảnh costume vật lý) |
-| `POST` | `/api/orders/:id/images` | Chèn ảnh costume (multipart/form-data, field `images`) |
-| `DELETE` | `/api/orders/:id/images/:imgId` | Xoá 1 ảnh costume |
-| `GET` | `/api/stats` | Tổng hợp doanh thu: `count`, `byStatus`, `revenue{total,done,pending,sewing,avg}`, `byMonth[]` |
-| `GET` | `/api/notes` hoặc `/api/notes?date=YYYY-MM-DD` | Ô ghi chú (lọc theo ngày nếu có) |
-| `POST` | `/api/notes` | Tạo ô (JSON: `date, title, content, color`) |
-| `PUT` | `/api/notes/:id` | Sửa ô |
-| `DELETE` | `/api/notes/:id` | Xoá ô (kèm xoá ảnh vật lý) |
-| `POST` | `/api/notes/:id/images` | Chèn ảnh (multipart/form-data, field `images`) |
-| `DELETE` | `/api/notes/:id/images/:imgId` | Xoá 1 ảnh |
-| `POST` | `/api/seed` | Nạp dữ liệu mẫu (chỉ khi db đang rỗng) |
+> Lưu ý về cache service worker: nếu sau này đổi nội dung file, người dùng đã vào app trước đó có thể vẫn thấy bản cũ (do SW cache). Để ép làm mới, tăng version cache trong `sw.js` (đổi `bunnytailor-v1` thành `bunnytailor-v2`) rồi push.
 
-Trường `date` và `deadline` theo định dạng `YYYY-MM-DD`. `color` thuộc `rose|gold|sage|cream|lilac`. `status` thuộc `pending|sewing|done`.
+## Tính năng PWA
 
-Đơn hàng (order) có các trường: `title`, `character`, `series`, `client`, `deadline`, `status`, `price` (số nguyên VNĐ), `measurements` (object 15 chỉ số: `cao,nang,vai,co,nguc,eo,dai_ao,vong_nach,bap_tay,co_tay,dai_tay,mong,dui,bap_chan,dai_quan` — mỗi giá trị chuỗi, tuỳ chọn), `fabricType` (chuỗi), `fabricMeters` (chuỗi), `materials` (mảng `{name,qty,unit,cost}`), `images` (mảng `{id,url,name,createdAt}` — quản lý qua endpoint `/api/orders/:id/images`, tối đa 12 ảnh), `facebook` (chuỗi URL, tuỳ chọn), `note`.
+- **Cài vào màn hình**: trên Chrome (desktop/Android) → thanh địa chỉ hiện icon "Cài đặt"; trên iOS Safari → Share → "Thêm ra màn hình chính". App mở như app độc lập (không có thanh địa chỉ).
+- **Chạy offline**: sau lần truy cập đầu, service worker cache toàn bộ app shell (HTML/CSS/JS/icon). Mở lại khi không có mạng vẫn dùng được đầy đủ — dữ liệu đọc từ IndexedDB.
+- Icon app là mặt thỏ pastel (xuất hiện trên màn hình chính khi cài).
 
+## Dữ liệu hoạt động thế nào
 
-=======
-# BunnyTailorNote
-A website for managing orders
->>>>>>> 60756a4369156c4bbb6f24d216b35021b820d35b
+- **Lưu trong IndexedDB của trình duyệt** — tồn tại vĩnh viễn cho đến khi bạn tự xoá.
+- **Mỗi trình duyệt/máy riêng biệt**: data trên Chrome máy nhà ≠ data trên Chrome điện thoại ≠ data trên Firefox. **Không đồng bộ giữa các thiết bị** (đây là điểm khác biệt đã chọn so với bản có server).
+- **Xoá dữ liệu browse** (Clear browsing data) → mất data.
+- **Ảnh** lưu dạng base64 ngay trong IndexedDB (mỗi ảnh ≤ ~8MB, tối đa 12 ảnh/đơn hoặc /ô). Ảnh lớn làm IndexedDB phình nhanh — nên nén ảnh trước khi tải lên.
+
+## Tính năng app
+
+- **Đơn hàng**: thêm/sửa/xoá, nhân vật, series, khách hàng, deadline, trạng thái (Chờ vật liệu / Đang may / Hoàn thành), tiền, số đo 15 chỉ số, loại vải, vật liệu bổ sung, ảnh costume, link Facebook, ghi chú.
+- **Lịch**: lịch tháng, hiện deadline đơn + ô ghi chú; bấm một ngày → mở ô ghi chú (chèn ảnh + ghi chú + đổi màu).
+- **Biểu đồ**: tổng doanh thu, doanh thu theo trạng thái, theo tháng.
+- **Dữ liệu mẫu**: nạp 4 đơn + 4 ô ghi chú demo (deadline theo ngày hiện tại).
+- **Xoá tất cả**: xoá toàn bộ đơn hàng + ô ghi chú + ảnh (có xác nhận).
+
+## Lưu ý
+
+- Bản này **không đồng bộ với bản iOS** (bản iOS có IndexedDB riêng trên điện thoại). Mỗi thiết bị một bộ data.
+- Nếu sau này cần đồng bộ đa thiết bị → chuyển sang bản có server (Render + MongoDB Atlas) hoặc Atlas Data API.

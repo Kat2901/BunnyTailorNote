@@ -1,112 +1,3 @@
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BunnyTailor — Sổ ghi chú may cosplay của Trâm Hòn</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="corner-bunny tl" id="cb1"></div>
-  <div class="corner-bunny br" id="cb2"></div>
-
-  <nav class="navbar">
-    <div class="nav-inner">
-      <div class="brand" id="brandHome">
-        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <ellipse cx="17" cy="12" rx="4" ry="10" fill="#B47C86"/>
-          <ellipse cx="31" cy="12" rx="4" ry="10" fill="#B47C86"/>
-          <ellipse cx="17" cy="13" rx="2" ry="6" fill="#F6E7E9"/>
-          <ellipse cx="31" cy="13" rx="2" ry="6" fill="#F6E7E9"/>
-          <circle cx="24" cy="28" r="13" fill="#FBF7F1" stroke="#B47C86" stroke-width="2"/>
-          <circle cx="19" cy="27" r="1.6" fill="#2A2622"/>
-          <circle cx="29" cy="27" r="1.6" fill="#2A2622"/>
-          <ellipse cx="24" cy="31" rx="1.9" ry="1.3" fill="#B47C86"/>
-        </svg>
-        <span class="name"><b>Bunny<span class="accent">Tailor</span></b><small>Sổ ghi chú may cosplay của Trâm Hòn</small></span>
-      </div>
-      <div class="nav-links">
-        <button class="nav-link active" data-tab="orders">✂ Đơn hàng</button>
-        <button class="nav-link" data-tab="calendar">📅 Lịch</button>
-        <button class="nav-link" data-tab="charts">📊 Biểu đồ</button>
-      </div>
-      <div class="nav-right">
-        <button class="btn btn-ghost btn-sm seed-btn" id="seedBtn" title="Nạp dữ liệu mẫu để xem qua">Dữ liệu mẫu</button>
-        <button class="btn btn-ghost btn-sm reset-btn" id="resetBtn" title="Xoá toàn bộ đơn hàng, ô ghi chú và ảnh">Xoá tất cả</button>
-      </div>
-    </div>
-  </nav>
-
-  <main>
-    <!-- ====================== ORDERS TAB ====================== -->
-    <section id="page-orders" class="page">
-      <div class="wrap">
-        <div class="page-head">
-          <span class="eyebrow">Quản lý đơn may</span>
-          <h1>Đơn hàng của tôi</h1>
-          <p>Theo dõi từng đơn cosplay: nhân vật, khách hàng, trạng thái và deadline. Mọi deadline tự động lên lịch ở tab Lịch.</p>
-        </div>
-        <div class="stats-row" id="statsRow"></div>
-        <div class="orders-toolbar">
-          <div class="toggle-group" id="filterGroup">
-            <button class="active" data-filter="all">Tất cả</button>
-            <button data-filter="pending">Chờ vật liệu</button>
-            <button data-filter="sewing">Đang may</button>
-            <button data-filter="done">Hoàn thành</button>
-          </div>
-          <button class="btn btn-primary" id="addOrderBtn">＋ Thêm đơn hàng</button>
-        </div>
-        <div class="order-list" id="orderList"></div>
-      </div>
-    </section>
-
-    <!-- ====================== CALENDAR TAB ====================== -->
-    <section id="page-calendar" class="page hidden">
-      <div class="wrap">
-        <div class="page-head">
-          <span class="eyebrow">Lịch tháng</span>
-          <h1>Lịch đơn hàng &amp; ghi chú</h1>
-          <p>Deadline đơn may hiện ngay trên lịch. Bấm vào một ngày để mở ô ghi chú — mỗi ô chèn được nhiều ảnh và ghi chú riêng.</p>
-        </div>
-        <div class="cal-toolbar">
-          <div class="cal-nav">
-            <button class="ico-btn" id="calPrev" aria-label="Tháng trước">‹</button>
-            <div class="cal-title" id="calTitle"></div>
-            <button class="ico-btn" id="calNext" aria-label="Tháng sau">›</button>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="calToday">Hôm nay</button>
-          <div class="cal-legend">
-            <span class="lg"><span class="sw deadline"></span>Deadline đơn</span>
-            <span class="lg"><span class="sw note"></span>Ô ghi chú</span>
-          </div>
-        </div>
-        <div class="cal-weekdays" id="calWeekdays"></div>
-        <div class="cal-grid" id="calGrid"></div>
-      </div>
-    </section>
-
-    <!-- ====================== CHARTS TAB ====================== -->
-    <section id="page-charts" class="page hidden">
-      <div class="wrap">
-        <div class="page-head">
-          <span class="eyebrow">Tổng quan &amp; doanh thu</span>
-          <h1>Biểu đồ đơn hàng</h1>
-          <p>Tổng tiền đã kiếm được từ toàn bộ đơn hàng, phân bổ theo trạng thái và theo tháng deadline. Cập nhật tự động mỗi khi thêm/sửa đơn.</p>
-        </div>
-        <div id="chartsBody"></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- modal + lightbox + toast -->
-  <div class="modal-overlay" id="modalRoot"><div class="modal" id="modalBox"></div></div>
-  <div class="lightbox" id="lightbox"><span class="lb-close">×</span><img alt="" /></div>
-  <div class="toast-wrap" id="toastWrap"></div>
-
-  <script>
   "use strict";
   /* ============================================================
      BunnyTailor — frontend logic (vanilla JS, inline)
@@ -132,14 +23,8 @@
   function fmtDateLong(iso){ const [y,m,d]=iso.split("-").map(Number); return `${THANG[m-1]}, ngày ${d}, ${y}`; }
   function daysLeft(deadline){ if(!deadline) return null; const t=new Date(); t.setHours(0,0,0,0); const d=new Date(deadline+"T00:00:00"); return Math.round((d-t)/86400000); }
 
-  async function api(path, opts={}){
-    const res = await fetch(path, opts);
-    const txt = await res.text();
-    let data = null; try { data = txt ? JSON.parse(txt) : null; } catch(_) {}
-    if(!res.ok) throw new Error((data && data.error) || ("HTTP "+res.status));
-    return data;
-  }
-  function apiJSON(path, method, body){ return api(path, { method, headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) }); }
+  /* api(), apiJSON(), uploadOrderImages() được định nghĩa trong db.js (IndexedDB).
+     Đây là các hàm global nên gọi trực tiếp được trong script này. */
 
   function toast(type, title, msg){
     const w = document.getElementById("toastWrap");
@@ -785,6 +670,13 @@
   /* ---------- init ---------- */
   renderWeekdays();
   loadAll().catch(e=>toast("error", "Không tải được dữ liệu", e.message));
-  </script>
-</body>
-</html>
+
+
+/* ---------- service worker (PWA offline) ---------- */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function (e) {
+      console.warn("SW register failed:", e);
+    });
+  });
+}
